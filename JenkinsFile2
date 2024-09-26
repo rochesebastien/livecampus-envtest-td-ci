@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Clone Repository') {
             steps {
@@ -7,37 +8,56 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/csurqunix/StringInverser.git'
             }
         }
+
         stage('Build') {
             steps {
                 script {
-                    // Vérifier si le système est Unix ou autre
                     if (isUnix()) {
-                        // Si Unix, exécuter la commande 'make' via l'interpréteur 'sh'
+                        // Compilation sous Unix avec 'make'
                         sh 'make'
                     } else {
-                        // Sinon, lancer la commande 'make' via l'utilitaire 'bat' pour Windows
+                        // Compilation sous Windows avec 'make' via bat
                         bat 'make'
                     }
                 }
             }
         }
+
         stage('Permissions') {
             when {
-                // Ce stage n'est exécuté que si le système est Unix
+                // Exécuter ce stage uniquement sur un système Unix
                 expression { isUnix() }
             }
             steps {
-                // Donner les droits d'exécution au binaire via 'chmod'
-                sh 'chmod +x stringinverser'
+                script {
+                    // Donner les droits d'exécution au fichier binaire généré
+                    sh 'chmod +x StringInverser'
+                }
             }
         }
+
+        stage('Execution') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        // Exécution du programme compilé sur Unix
+                        sh './StringInverser'
+                    } else {
+                        // Exécution du programme compilé sur Windows
+                        bat 'StringInverser.exe'
+                    }
+                }
+            }
+        }
+
         stage('Nettoyage') {
             steps {
                 script {
-                    // Exécuter la commande 'make clean' selon le système
                     if (isUnix()) {
+                        // Nettoyage des fichiers de build sous Unix
                         sh 'make clean'
                     } else {
+                        // Nettoyage des fichiers de build sous Windows
                         bat 'make clean'
                     }
                 }
