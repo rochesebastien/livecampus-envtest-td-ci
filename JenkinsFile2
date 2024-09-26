@@ -4,7 +4,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Cloner le dépôt Git
-                git 'https://github.com/csurqunix/StringInverser.git'
+                git branch: 'main', url: 'https://github.com/csurqunix/StringInverser.git'
             }
         }
         stage('Build') {
